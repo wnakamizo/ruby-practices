@@ -37,17 +37,18 @@ for i in num_set
 end
 
 puts "#whileでやってみた"
-num_rc = 0
-while num_rc < 20
-  num_rc += 1
+num = 0
+limit = 20
+while num < limit
+  num += 1
   case 
-  when num_rc%3 == 0 && num_rc%5 == 0
+  when num%3 == 0 && num%5 == 0
     puts "FizzBuzz"
-  when num_rc%3 == 0
+  when num%3 == 0
     puts "Fizz"
-  when num_rc%5 == 0
+  when num%5 == 0
     puts "Buzz"
   else
-    puts num_rc
+    puts num
   end
 end
