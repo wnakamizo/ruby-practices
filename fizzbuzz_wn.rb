@@ -5,13 +5,18 @@
 3と5両方の倍数の場合には｢FizzBuzz｣とプリントすること。
 =end
 
-puts "#forでやってみた"
+puts "#if-elsifでやってみた"
 num_set = 1..20
 for i in num_set
-  outputs = i
-  outputs = "Fizz" if i%3 == 0
-  outputs = "Buzz" if i%5 == 0
-  outputs = "FizzBuzz" if i%3 == 0 && i%5 == 0
+  if i%3 == 0 && i%5 == 0
+    outputs = "FizzBuzz"
+  elsif i%3 == 0
+    outputs = "Fizz"
+  elsif i%5 == 0
+    outputs = "Buzz"
+  else
+    outputs = i  
+  end  
   puts outputs
 end
 
