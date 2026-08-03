@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require "date"
-require 'optparse'
+require "optparse"
 today = Date.today
 month = today.month
 year = today.year
