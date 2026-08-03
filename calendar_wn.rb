@@ -29,6 +29,7 @@ days_array = (Date.new(year, month, 1)..Date.new(year, month, -1)).map do |x|
   x.strftime("%e")
 end
 raw_days_str = first_day_indent + days_array.join(" ")
+# Remove delimiters every 21 characters (7 days * 3 chars)
 formatted_days_str = raw_days_str.chars.select.with_index(1) do |char, position|
   position % 21 != 0
 end.join
