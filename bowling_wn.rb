@@ -3,7 +3,6 @@
 
 input = ARGV[0].split(',')
 converted_input = input.map { |shot| shot == 'X' ? 10 : shot.to_i }
-shot_numbers = [1]
 frame_numbers = [1.0]
 base_score = converted_input.sum
 bonus_score_strike = 0
@@ -16,7 +15,6 @@ converted_input.each_with_index do |score, i|
     bonus_score_spare += converted_input[i + 2] if (frame_numbers[-1] % 1).zero? && score + converted_input[i + 1] == 10
     frame_numbers.push(frame_numbers[-1] + 0.5)
   end
-  shot_numbers.push(shot_numbers[-1] + 1)
   break if frame_numbers[-1] == 10
 end
 
