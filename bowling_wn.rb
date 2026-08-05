@@ -3,20 +3,24 @@
 
 input = ARGV[0].split(',')
 converted_input = input.map { |shot| shot == 'X' ? 10 : shot.to_i }
-frame_numbers = [1.0]
+frame_number = 1
+first_shot = true
 bonus_score_strike = 0
 bonus_score_spare = 0
 base_score = 0
 converted_input.each_with_index do |score, i|
   base_score += score
-  if score == 10 && (frame_numbers[-1] % 1).zero?
+  if score == 10 && first_shot
     bonus_score_strike += converted_input[i + 1] + converted_input[i + 2]
-    frame_numbers.push(frame_numbers[-1] + 1.0)
+    frame_number += 1
+  elsif first_shot
+    bonus_score_spare += converted_input[i + 2] if score + converted_input[i + 1] == 10
+    first_shot = false
   else
-    bonus_score_spare += converted_input[i + 2] if (frame_numbers[-1] % 1).zero? && score + converted_input[i + 1] == 10
-    frame_numbers.push(frame_numbers[-1] + 0.5)
+    frame_number += 1
+    first_shot = true
   end
-  break if frame_numbers[-1] == 11
+  break if frame_number == 11
 end
 
 total_score = base_score + bonus_score_spare + bonus_score_strike
