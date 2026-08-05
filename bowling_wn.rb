@@ -8,7 +8,7 @@ bonus_score_strike = 0
 bonus_score_spare = 0
 base_score = 0
 converted_input.each_with_index do |score, i|
-  base_score += converted_input[i]
+  base_score += score
   if score == 10 && (frame_numbers[-1] % 1).zero?
     bonus_score_strike += converted_input[i + 1] + converted_input[i + 2]
     frame_numbers.push(frame_numbers[-1] + 1.0)
