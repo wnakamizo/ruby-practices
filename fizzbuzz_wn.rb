@@ -5,7 +5,7 @@
 3と5両方の倍数の場合には｢FizzBuzz｣とプリントすること。
 =end
 
-puts "#if-elsifでやってみた"
+=begin
 num_set = 1..20
 for i in num_set
   if i%3 == 0 && i%5 == 0
@@ -19,11 +19,10 @@ for i in num_set
   end  
   puts outputs
 end
+=end
 
-
-puts "#casewhenでやってみた"
 num_set = 1..20
-for i in num_set
+num_set.each do |i|
   case 
   when i%3 == 0 && i%5 == 0
     puts "FizzBuzz"
@@ -36,7 +35,7 @@ for i in num_set
   end
 end
 
-puts "#whileでやってみた"
+=begin
 num = 0
 limit = 20
 while num < limit
@@ -52,3 +51,4 @@ while num < limit
     puts num
   end
 end
+=end
