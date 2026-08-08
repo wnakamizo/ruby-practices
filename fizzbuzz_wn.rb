@@ -1,25 +1,4 @@
 #!/usr/bin/env ruby
-=begin
-1から20までの数をプリントするプログラムを書け。
-ただし3の倍数のときは数の代わりに｢Fizz｣と、5の倍数のときは｢Buzz｣とプリントし、
-3と5両方の倍数の場合には｢FizzBuzz｣とプリントすること。
-=end
-
-=begin
-num_set = 1..20
-for i in num_set
-  if i%3 == 0 && i%5 == 0
-    outputs = "FizzBuzz"
-  elsif i%3 == 0
-    outputs = "Fizz"
-  elsif i%5 == 0
-    outputs = "Buzz"
-  else
-    outputs = i  
-  end  
-  puts outputs
-end
-=end
 
 num_set = 1..20
 num_set.each do |i|
@@ -34,21 +13,3 @@ num_set.each do |i|
     puts i
   end
 end
-
-=begin
-num = 0
-limit = 20
-while num < limit
-  num += 1
-  case 
-  when num%3 == 0 && num%5 == 0
-    puts "FizzBuzz"
-  when num%3 == 0
-    puts "Fizz"
-  when num%5 == 0
-    puts "Buzz"
-  else
-    puts num
-  end
-end
-=end
