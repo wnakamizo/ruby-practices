@@ -1,13 +1,11 @@
 #!/usr/bin/env ruby
 
-num_set = 1..20
-num_set.each do |i|
-  case 
-  when i%3 == 0 && i%5 == 0
+(1..20).each do |i|
+  if (i%3).zero? && (i%5).zero?
     puts "FizzBuzz"
-  when i%3 == 0
+  elsif (i%3).zero?
     puts "Fizz"
-  when i%5 == 0
+  elsif (i%5).zero?
     puts "Buzz"
   else
     puts i
