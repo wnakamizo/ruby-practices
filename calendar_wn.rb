@@ -14,14 +14,7 @@ sub_header = "Su Mo Tu We Th Fr Sa"
 space = " "
 
 month_name = Date.new(year, month, 1).strftime("%B")
-total_padding_size = sub_header.size - (month_name.size + year.to_s.size + 1)
-left_padding = space*(total_padding_size/2)
-if total_padding_size.even?
-  right_padding = space*(total_padding_size/2)
-else
-  right_padding = space*(total_padding_size/2 + 1)
-end
-header = left_padding + "#{month_name} #{year}" + right_padding
+header = "#{month_name} #{year}".center(sub_header.size)
 
 weekday_name = Date.new(year, month, 1).strftime("%a")[0, 2]
 first_day_indent = space*(sub_header.index(weekday_name))
