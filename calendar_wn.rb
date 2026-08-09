@@ -11,22 +11,26 @@ opt.on('-y YEAR') { |y| year = y.to_i }
 opt.parse!(ARGV)
 
 sub_header = "Su Mo Tu We Th Fr Sa"
-space = " "
 
-month_name = Date.new(year, month, 1).strftime("%B")
+first_date = Date.new(year, month, 1)
+last_date = Date.new(year, month, -1)
+month_name = first_date.strftime("%B")
 header = "#{month_name} #{year}".center(sub_header.size)
 
-weekday_name = Date.new(year, month, 1).strftime("%a")[0, 2]
-first_day_indent = space*(sub_header.index(weekday_name))
-days_array = (Date.new(year, month, 1)..Date.new(year, month, -1)).map do |x|
-  x.strftime("%e")
+three_spaces = "   "
+first_week_indent = three_spaces*(first_date.strftime("%w").to_i)
+weeks = (first_date..last_date).slice_before(&:sunday?)
+body = weeks.map.with_index do |week, index|
+  formatted_week = week.map do |date|
+    "%2d" % date.day
+  end.join(" ")
+
+  if index.zero?
+    formatted_week = first_week_indent + formatted_week
+  else
+    formatted_week
+  end
 end
-raw_days_str = first_day_indent + days_array.join(" ")
-# Remove delimiters every 21 characters (7 days * 3 chars)
-formatted_days_str = raw_days_str.chars.select.with_index(1) do |char, position|
-  position % 21 != 0
-end.join
-body = formatted_days_str.scan(/.{1,#{sub_header.size}}/)
 
 puts [
   header,
