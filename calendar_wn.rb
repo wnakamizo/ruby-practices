@@ -21,12 +21,9 @@ three_spaces = "   "
 first_week_indent = three_spaces*(first_date.strftime("%w").to_i)
 weeks = (first_date..last_date).slice_before(&:sunday?)
 body = weeks.map.with_index do |week, index|
-  formatted_week = week.map do |date|
-    "%2d" % date.day
-  end.join(" ")
-
+  formatted_week = week.map { _1.strftime("%e")}.join(" ")
   if index.zero?
-    formatted_week = first_week_indent + formatted_week
+    first_week_indent + formatted_week
   else
     formatted_week
   end
