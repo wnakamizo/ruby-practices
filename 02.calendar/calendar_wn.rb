@@ -18,7 +18,7 @@ month_name = first_date.strftime("%B")
 header = "#{month_name} #{year}".center(sub_header.size)
 
 three_spaces = "   "
-first_week_indent = three_spaces*(first_date.strftime("%w").to_i)
+first_week_indent = three_spaces*(first_date.wday)
 weeks = (first_date..last_date).slice_before(&:sunday?)
 body = weeks.map.with_index do |week, index|
   formatted_week = week.map { _1.strftime("%e")}.join(" ")
