@@ -17,17 +17,13 @@ last_date = Date.new(year, month, -1)
 month_name = first_date.strftime("%B")
 header = "#{month_name} #{year}".center(sub_header.size)
 
-three_spaces = "   "
-first_week_indent = three_spaces*(first_date.wday)
 weeks = (first_date..last_date).slice_before(&:sunday?)
 body = weeks.map.with_index do |week, index|
   formatted_week = week.map { _1.strftime("%e")}.join(" ")
-  if index.zero?
-    first_week_indent + formatted_week
-  else
-    formatted_week
-  end
 end
+three_spaces = "   "
+first_week_indent = three_spaces*(first_date.wday)
+body[0] = first_week_indent + body[0]
 
 puts [
   header,
