@@ -10,7 +10,7 @@ scores.each_with_index do |score, i|
   total_score += score
   if first_shot
     if score == 10
-      total_score += scores[i + 1] + scores[i + 2]
+      total_score += scores[i + 1, 2].sum
       current_frame += 1
     else
       total_score += scores[i + 2] if score + scores[i + 1] == 10
