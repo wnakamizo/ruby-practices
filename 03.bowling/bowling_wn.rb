@@ -8,12 +8,14 @@ first_shot = true
 total_score = 0
 scores.each_with_index do |score, i|
   total_score += score
-  if score == 10 && first_shot
-    total_score += scores[i + 1] + scores[i + 2]
-    current_frame += 1
-  elsif first_shot
-    total_score += scores[i + 2] if score + scores[i + 1] == 10
-    first_shot = false
+  if first_shot
+    if score == 10
+      total_score += scores[i + 1] + scores[i + 2]
+      current_frame += 1
+    else
+      total_score += scores[i + 2] if score + scores[i + 1] == 10
+      first_shot = false
+    end
   else
     current_frame += 1
     first_shot = true
