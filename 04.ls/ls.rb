@@ -21,6 +21,6 @@ def display(rows)
   rows.each { |row| puts row }
 end
 
-pad_files = pad_filenames(files)
-rows = build_rows(pad_files)
+padded_files = pad_filenames(files)
+rows = build_rows(padded_files)
 display(rows)
