@@ -1,7 +1,17 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-files = Dir.glob('*')
+require 'optparse'
+a_option = false
+opt = OptionParser.new
+opt.on('-a') { |v| a_option = v }
+opt.parse!(ARGV)
+
+files = if a_option
+          Dir.glob('*', File::FNM_DOTMATCH)
+        else
+          Dir.glob('*')
+        end
 
 def pad_filenames(files)
   longest_filename_length = files.map(&:length).max
@@ -21,6 +31,6 @@ def display(rows)
   rows.each { |row| puts row }
 end
 
-pad_files = pad_filenames(files)
-rows = build_rows(pad_files)
+padded_files = pad_filenames(files)
+rows = build_rows(padded_files)
 display(rows)
