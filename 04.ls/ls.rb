@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'optparse'
+require 'date'
 require 'etc'
+require 'optparse'
 
 FILE_TYPE = {
   '01' => 'p',
@@ -84,7 +85,8 @@ def collect_file_attributes(files)
     owners << Etc.getpwuid(stat.uid).name
     groups << Etc.getgrgid(stat.gid).name
     sizes << stat.size
-    timestamps << stat.mtime.strftime('%b %d %H:%M')
+    stat_mtime = stat.mtime
+    timestamps << (stat_mtime.year == Date.today.year ? stat_mtime.strftime('%b %d %H:%M') : stat_mtime.strftime('%b %d  %Y'))
   end
   FileAttributes.new(block_sizes:, file_modes:, nlinks:, owners:, groups:, sizes:, timestamps:)
 end
