@@ -3,8 +3,10 @@
 
 require 'optparse'
 a_option = false
+r_option = false
 opt = OptionParser.new
 opt.on('-a') { |v| a_option = v }
+opt.on('-r') { |v| r_option = v }
 opt.parse!(ARGV)
 
 files = if a_option
@@ -12,6 +14,8 @@ files = if a_option
         else
           Dir.glob('*')
         end
+
+files = files.reverse if r_option
 
 def pad_filenames(files)
   longest_filename_length = files.map(&:length).max
