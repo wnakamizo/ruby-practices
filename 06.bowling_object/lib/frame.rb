@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 class Frame
-  attr_reader :scores, :frame_num
+  attr_reader :shot_group, :frame_num
 
-  def initialize(scores, frame_num)
-    @scores = scores
+  def initialize(shot_group, frame_num)
+    @shot_group = shot_group
     @frame_num = frame_num
   end
 
   def score(frames)
-    base = @scores.sum
+    base = @shot_group.sum
     next_frame = next_frame(frames)
     bonus = if strike?
-              next_frame.strike? ? (10 + next_frame.next_frame(frames).scores[0]) : next_frame.scores.sum
+              next_frame.strike? ? (10 + next_frame.next_frame(frames).shot_group[0]) : next_frame.shot_group.sum
             elsif spare?
-              next_frame.scores[0]
+              next_frame.shot_group[0]
             else
               0
             end
@@ -22,11 +22,11 @@ class Frame
   end
 
   def strike?
-    @scores == [10, 0]
+    @shot_group == [10, 0]
   end
 
   def spare?
-    @scores.sum == 10 && !strike?
+    @shot_group.sum == 10 && !strike?
   end
 
   def next_frame(frames)
