@@ -30,7 +30,7 @@ class Frame
   end
 
   def next_frame(frames)
-    return [0] unless frames[@frame_num - 1] == self
+    return Frame.new([0], @frame_num + 1) unless frames[@frame_num - 1] == self
 
     frames[@frame_num]
   end
