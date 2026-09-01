@@ -15,6 +15,6 @@ class Game
 
   def to_frames
     shot_groups = @shots.each_slice(2).to_a
-    shot_groups.map.with_index(1) { |scores, frame_num| Frame.new(scores, frame_num) }
+    shot_groups.map.with_index(1) { |shot_group, frame_num| Frame.new(shot_group, frame_num) }
   end
 end
