@@ -1,37 +1,40 @@
 # frozen_string_literal: true
 
 class Frame
-  attr_reader :shot_group, :frame_num
+  attr_reader :frame_num, :first_shot, :second_shot, :third_shot
 
-  def initialize(shot_group, frame_num)
-    @shot_group = shot_group
+  def initialize(frame_num, first_shot, second_shot = nil, third_shot = nil)
     @frame_num = frame_num
+    @first_shot = first_shot
+    @second_shot = second_shot
+    @third_shot = third_shot
   end
 
-  def score(frames)
-    base = @shot_group.sum
-    next_frame = next_frame(frames)
-    bonus = if strike?
-              next_frame.strike? ? (10 + next_frame.next_frame(frames).shot_group[0]) : next_frame.shot_group.sum
-            elsif spare?
-              next_frame.shot_group[0]
-            else
-              0
-            end
-    base + bonus
+  def score(shots)
+    additive_score = if strike? && !last_frame?
+                       first_shot.next_n_shots(shots, 2).sum(&:pin_count)
+                     elsif spare? && !last_frame?
+                       second_shot.next_n_shots(shots, 1)[0].pin_count
+                     else
+                       0
+                     end
+    pins_knocked_down + additive_score
+  end
+
+  def pins_knocked_down
+    shots = [first_shot, second_shot, third_shot]
+    shots.compact.sum(&:pin_count)
   end
 
   def strike?
-    @shot_group == [10, 0]
+    first_shot.strike?
   end
 
   def spare?
-    @shot_group.sum == 10 && !strike?
+    pins_knocked_down == Game::MAX_PINS && !strike?
   end
 
-  def next_frame(frames)
-    return Frame.new([0], @frame_num + 1) unless frames[@frame_num - 1] == self
-
-    frames[@frame_num]
+  def last_frame?
+    frame_num == Game::MAX_FRAMES
   end
 end

@@ -1,20 +1,46 @@
 # frozen_string_literal: true
 
 class Game
+  MAX_FRAMES = 9
+  MAX_PINS = 10
+
+  attr_reader :all_shots
+
   def initialize(shots_text)
-    @shots = shots_text.split(',').flat_map { |shot| shot == 'X' ? [10, 0] : shot.to_i }
+    @all_shots = shots_text.split(',').map.with_index { |shot, shot_num| Shot.new(shot, shot_num) }
   end
 
   def total_score
     frames = to_frames
-    total_score = frames.first(10).sum { |frame| frame.score(frames) }
+    total_score = frames.sum { |frame| frame.score(all_shots) }
     puts total_score
   end
 
-  private
-
   def to_frames
-    shot_groups = @shots.each_slice(2).to_a
-    shot_groups.map.with_index(1) { |shot_group, frame_num| Frame.new(shot_group, frame_num) }
+    frames = []
+    frame_num = 0
+    (MAX_FRAMES + 1).times do
+      frames << to_frame(frame_num)
+      frame_num += 1
+    end
+    frames
+  end
+
+  def to_frame(frame_num)
+    index = first_shot_index_for(frame_num)
+    first_shot = all_shots[index]
+    second_shot = all_shots[index + 1] unless frame_num < MAX_FRAMES && first_shot.strike?
+    third_shot = all_shots[index + 2] if frame_num == MAX_FRAMES
+    Frame.new(frame_num, first_shot, second_shot, third_shot)
+  end
+
+  def first_shot_index_for(frame_num)
+    index = 0
+    current_frame_num = 0
+    while current_frame_num < frame_num
+      index += all_shots[index].strike? ? 1 : 2
+      current_frame_num += 1
+    end
+    index
   end
 end
