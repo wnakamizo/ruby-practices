@@ -54,10 +54,6 @@ def build_rows_for_default_option(files, max_columns = 3)
   columns.transpose.map { |row| row.join('  ') }
 end
 
-def display(rows)
-  rows.each { |row| puts row }
-end
-
 def replace_with_special_bit(char, special_permission_flag, replacement_char)
   return char unless special_permission_flag
 
@@ -132,7 +128,6 @@ files = files.reverse if r_option
 rows = if l_option
          build_rows_for_l_option(files)
        else
-         padded_files = pad_filenames(files)
-         build_rows_for_default_option(padded_files)
+         build_rows_for_default_option(pad_filenames(files))
        end
-display(rows)
+puts rows
