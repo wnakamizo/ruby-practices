@@ -12,6 +12,8 @@ class Frame
     pins_knocked_down + additive_score(all_shots)
   end
 
+  private
+
   def additive_score(all_shots)
     return 0 if last_frame?
 
