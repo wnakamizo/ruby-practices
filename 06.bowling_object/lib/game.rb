@@ -31,12 +31,6 @@ class Game
   end
 
   def first_shot_index_for(frame_num)
-    index = 0
-    current_frame_num = 0
-    while current_frame_num < frame_num
-      index += all_shots[index].strike? ? 1 : 2
-      current_frame_num += 1
-    end
-    index
+    frame_num.times.inject(0) { |index, _| index + (all_shots[index].strike? ? 1 : 2) }
   end
 end
