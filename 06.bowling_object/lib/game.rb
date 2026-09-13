@@ -16,14 +16,10 @@ class Game
     puts total_score
   end
 
+  private
+
   def to_frames
-    frames = []
-    frame_num = 0
-    (MAX_FRAMES + 1).times do
-      frames << to_frame(frame_num)
-      frame_num += 1
-    end
-    frames
+    (0..MAX_FRAMES).map { |frame_num| to_frame(frame_num) }
   end
 
   def to_frame(frame_num)
