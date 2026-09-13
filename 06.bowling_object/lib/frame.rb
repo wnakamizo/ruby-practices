@@ -9,14 +9,19 @@ class Frame
   end
 
   def score(all_shots)
-    additive_score = if strike? && !last_frame?
-                       shots[0].next_n_shots(all_shots, 2).sum(&:pin_count)
-                     elsif spare? && !last_frame?
-                       shots[1].next_n_shots(all_shots, 1)[0].pin_count
-                     else
-                       0
-                     end
-    pins_knocked_down + additive_score
+    pins_knocked_down + additive_score(all_shots)
+  end
+
+  def additive_score(all_shots)
+    return 0 if last_frame?
+
+    if strike?
+      shots[0].next_n_shots(all_shots, 2).sum(&:pin_count)
+    elsif spare?
+      shots[1].next_n_shots(all_shots, 1)[0].pin_count
+    else
+      0
+    end
   end
 
   def pins_knocked_down
