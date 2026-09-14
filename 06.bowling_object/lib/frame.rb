@@ -3,8 +3,9 @@
 class Frame
   attr_reader :frame_num, :shots
 
-  def initialize(frame_num, first_shot, second_shot = nil, third_shot = nil)
+  def initialize(frame_num, max_frames, first_shot, second_shot = nil, third_shot = nil)
     @frame_num = frame_num
+    @max_frames = max_frames
     @shots = [first_shot, second_shot, third_shot].compact
   end
 
@@ -35,10 +36,10 @@ class Frame
   end
 
   def spare?
-    pins_knocked_down == Game::MAX_PINS && !strike?
+    pins_knocked_down == 10 && !strike?
   end
 
   def last_frame?
-    frame_num == Game::MAX_FRAMES
+    frame_num == @max_frames
   end
 end

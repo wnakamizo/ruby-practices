@@ -2,7 +2,6 @@
 
 class Game
   MAX_FRAMES = 9
-  MAX_PINS = 10
 
   attr_reader :all_shots
 
@@ -19,18 +18,18 @@ class Game
   private
 
   def to_frames
-    (0..MAX_FRAMES).map { |frame_num| to_frame(frame_num) }
+    start_index = 0
+    (0..MAX_FRAMES).map do |frame_num|
+      frame = to_frame(frame_num, start_index)
+      start_index += all_shots[start_index].strike? ? 1 : 2
+      frame
+    end
   end
 
-  def to_frame(frame_num)
-    index = first_shot_index_for(frame_num)
-    first_shot = all_shots[index]
-    second_shot = all_shots[index + 1] unless frame_num < MAX_FRAMES && first_shot.strike?
-    third_shot = all_shots[index + 2] if frame_num == MAX_FRAMES
-    Frame.new(frame_num, first_shot, second_shot, third_shot)
-  end
-
-  def first_shot_index_for(frame_num)
-    frame_num.times.inject(0) { |index, _| index + (all_shots[index].strike? ? 1 : 2) }
+  def to_frame(frame_num, start_index)
+    first_shot = all_shots[start_index]
+    second_shot = all_shots[start_index + 1] unless frame_num < MAX_FRAMES && first_shot.strike?
+    third_shot = all_shots[start_index + 2] if frame_num == MAX_FRAMES
+    Frame.new(frame_num, MAX_FRAMES, first_shot, second_shot, third_shot)
   end
 end

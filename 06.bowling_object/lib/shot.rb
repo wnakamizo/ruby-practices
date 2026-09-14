@@ -7,7 +7,7 @@ class Shot
   end
 
   def pin_count
-    strike? ? Game::MAX_PINS : @shot.to_i
+    strike? ? 10 : @shot.to_i
   end
 
   def strike?
