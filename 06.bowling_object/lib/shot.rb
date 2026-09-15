@@ -2,6 +2,7 @@
 
 class Shot
   attr_reader :throw_num
+  
   def initialize(pins, throw_num)
     @pins = pins
     @throw_num = throw_num
