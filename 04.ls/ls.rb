@@ -41,20 +41,16 @@ ColumnLayout = Data.define(:values, :justify)
 FileAttributes = Data.define(:block_sizes, :file_modes, :nlinks, :owners, :groups, :sizes, :timestamps)
 
 def main
-  options = option_parse
+  options = parse_options
 
-  files = if options[:a]
-            Dir.glob('*', File::FNM_DOTMATCH)
-          else
-            Dir.glob('*')
-          end
+  files = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
   files = files.reverse if options[:r]
   rows = options[:l] ? build_rows_for_l_option(files) : build_rows_for_default_option(files)
 
   puts rows
 end
 
-def option_parse
+def parse_options
   options = { a: false, l: false, r: false }
   opt = OptionParser.new
   opt.on('-a') { |v| options[:a] = v }
