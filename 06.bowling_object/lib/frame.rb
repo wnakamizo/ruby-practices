@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 class Frame
-  attr_reader :frame_num, :shots
-
-  def initialize(frame_num, max_frames, first_shot, second_shot = nil, third_shot = nil)
-    @frame_num = frame_num
-    @max_frames = max_frames
-    @shots = [first_shot, second_shot, third_shot].compact
+  def initialize(shots, last_frame)
+    @shots = shots
+    @last_frame = last_frame
   end
 
   def score(all_shots)
@@ -15,13 +12,15 @@ class Frame
 
   private
 
+  attr_reader :shots
+
   def additive_score(all_shots)
-    return 0 if last_frame?
+    return 0 if @last_frame
 
     if strike?
-      shots[0].next_n_shots(all_shots, 2).sum(&:pin_count)
+      all_shots[shots[0].throw_num + 1, 2].sum(&:pin_count)
     elsif spare?
-      shots[1].next_n_shots(all_shots, 1)[0].pin_count
+      all_shots[shots[1].throw_num + 1].pin_count
     else
       0
     end
@@ -37,9 +36,5 @@ class Frame
 
   def spare?
     pins_knocked_down == 10 && !strike?
-  end
-
-  def last_frame?
-    frame_num == @max_frames
   end
 end

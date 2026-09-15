@@ -6,7 +6,7 @@ class Game
   attr_reader :all_shots
 
   def initialize(shots_text)
-    @all_shots = shots_text.split(',').map.with_index { |shot, shot_num| Shot.new(shot, shot_num) }
+    @all_shots = shots_text.split(',').map.with_index { |pins, throw_num| Shot.new(pins, throw_num) }
   end
 
   def total_score
@@ -19,7 +19,7 @@ class Game
 
   def to_frames
     start_index = 0
-    (0..MAX_FRAMES).map do |frame_num|
+    (MAX_FRAMES + 1).times.map do |frame_num|
       frame = to_frame(frame_num, start_index)
       start_index += all_shots[start_index].strike? ? 1 : 2
       frame
@@ -27,9 +27,15 @@ class Game
   end
 
   def to_frame(frame_num, start_index)
-    first_shot = all_shots[start_index]
-    second_shot = all_shots[start_index + 1] unless frame_num < MAX_FRAMES && first_shot.strike?
-    third_shot = all_shots[start_index + 2] if frame_num == MAX_FRAMES
-    Frame.new(frame_num, MAX_FRAMES, first_shot, second_shot, third_shot)
+    last_frame = frame_num == MAX_FRAMES
+    count = if last_frame
+              3
+            elsif all_shots[start_index].strike?
+              1
+            else
+              2
+            end
+    shots = all_shots[start_index, count]
+    Frame.new(shots, last_frame)
   end
 end
