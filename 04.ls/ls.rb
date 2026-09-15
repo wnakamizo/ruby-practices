@@ -40,6 +40,26 @@ PERMISSION_TABLE = {
 ColumnLayout = Data.define(:values, :justify)
 FileAttributes = Data.define(:block_sizes, :file_modes, :nlinks, :owners, :groups, :sizes, :timestamps)
 
+def main
+  options = parse_options
+
+  files = options[:a] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+  files = files.reverse if options[:r]
+  rows = options[:l] ? build_rows_for_l_option(files) : build_rows_for_default_option(files)
+
+  puts rows
+end
+
+def parse_options
+  options = { a: false, l: false, r: false }
+  opt = OptionParser.new
+  opt.on('-a') { |v| options[:a] = v }
+  opt.on('-l') { |v| options[:l] = v }
+  opt.on('-r') { |v| options[:r] = v }
+  opt.parse!(ARGV)
+  options
+end
+
 def pad_filenames(files)
   longest_filename_length = files.map(&:length).max
   files.map { |file| file.ljust(longest_filename_length) }
@@ -48,8 +68,9 @@ end
 def build_rows_for_default_option(files, max_columns = 3)
   return [] if files.empty?
 
-  max_rows_count = files.size.ceildiv(max_columns)
-  columns = files.each_slice(max_rows_count).to_a
+  paddedfiles = pad_filenames(files)
+  max_rows_count = paddedfiles.size.ceildiv(max_columns)
+  columns = paddedfiles.each_slice(max_rows_count).to_a
   columns[-1][max_rows_count - 1] = nil if columns[-1].size != max_rows_count
   columns.transpose.map { |row| row.join('  ') }
 end
@@ -110,24 +131,4 @@ def build_rows_for_l_option(files)
   [total_line, *lines]
 end
 
-a_option = r_option = l_option = false
-opt = OptionParser.new
-opt.on('-a') { |v| a_option = v }
-opt.on('-r') { |v| r_option = v }
-opt.on('-l') { |v| l_option = v }
-opt.parse!(ARGV)
-
-files = if a_option
-          Dir.glob('*', File::FNM_DOTMATCH)
-        else
-          Dir.glob('*')
-        end
-
-files = files.reverse if r_option
-
-rows = if l_option
-         build_rows_for_l_option(files)
-       else
-         build_rows_for_default_option(pad_filenames(files))
-       end
-puts rows
+main
