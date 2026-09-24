@@ -1,68 +1,71 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-=begin
-## オプションなしで実行すると、行数・単語数・バイト数・ファイル名の順に表示
--l：行数（改行の数）のみを表示する
--w：単語数（スペースやタブで区切られた数）のみを表示する
--c：バイト数のみを表示する
-## ファイルを1つだけ指定する場合、複数のファイルを指定する場合の両方に対応する
-## ruby ls.rb | ruby wc.rb
-## 本物の wc コマンドはノーブレークスペースを含むマルチバイト文字を1単語多くカウントするが、自作の wc コマンドでは対応しなくても良い。
-## 特殊な入力ケースに対応する必要はありません(例: 単語の区切りの空白文字は半角スペース、タブ、改行程度で大丈夫です
-=end
+require 'optparse'
 
-l_option = false
-w_option = false
-c_option = false
-default = [l_option, w_option, c_option].none?
+def main
+  options, names = parse_options(ARGV)
+  if names.empty?
+    names = ['']
+    contents = [$stdin.read]
+    width = 7 if options.values.select(&:itself).size >= 2
+  end
 
-lines = 5
-words = 200
-bytes = 500
-file = 'wc.rb'
+  table = build_table(names, options, contents)
+  name_column = names.size >= 2 ? [*names, 'total'] : names
+  columns = pad(build_count_columns(table, options), width) + [name_column]
+  rows = columns.transpose.map { |row| row.join(' ') }
+  rows.each { |row| puts row }
+end
 
-# 出力する要素を選ぶ
-counts = []
-counts << lines.to_s if l_option || default
-counts << words.to_s if w_option || default
-counts << bytes.to_s if c_option || default
+def parse_options(argv)
+  options = { l: false, w: false, c: false }
+  opt = OptionParser.new
+  opt.on('-l') { |v| options[:l] = v }
+  opt.on('-w') { |v| options[:w] = v }
+  opt.on('-c') { |v| options[:c] = v }
+  names = opt.parse(argv)
 
-# 最大桁数で右揃え処理
-def pad(counts)
-  max = counts.map do |count|
-    count.length
-  end.max
-  counts.map do |count|
-    count.rjust(max)
+  options.transform_values! { true } if options.values.none?
+  [options, names]
+end
+
+def build_table(names, options, contents = nil)
+  table = {}
+  names.each { |name| table[name.to_sym] = { lines: nil, words: nil, bytes: nil } }
+  register(names, :lines, table, contents) { |content| content.lines.size } if options[:l]
+  register(names, :words, table, contents) { |content| content.split.size } if options[:w]
+  register(names, :bytes, table, contents, &:bytesize) if options[:c]
+  table
+end
+
+def register(names, key, table, contents = nil)
+  names.each_with_index do |name, index|
+    content = contents.nil? ? File.read(name) : contents[index]
+    table[name.to_sym][key] = yield(content)
   end
 end
 
-# 出力項目をまとめる
-padded_counts = pad(counts)
-row = [*padded_counts, file]
-# 区切り文字は半角スペース
-puts row.join(' ')
+def build_count_columns(table, options)
+  keys = { l: :lines, w: :words, c: :bytes }
+  values = table.values
+  options.filter_map do |option, bool|
+    next unless bool
 
-require 'minitest/autorun'
-class WCTest < Minitest::Test
-  def test_output
-    l_option = false
-    w_option = true
-    c_option = false
-    default = [l_option, w_option, c_option].none?
-
-    lines = 5
-    words = 200
-    bytes = 500
-    file = 'wc.rb'
-
-    # 出力する要素を選ぶ
-    counts = []
-    counts << lines.to_s if l_option || default
-    counts << words.to_s if w_option || default
-    counts << bytes.to_s if c_option || default
-    padded_counts = pad(counts)
-    row = [*padded_counts, file]
-    assert_equal '200 wc.rb', row.join(' ')
+    key = keys[option]
+    if values.size >= 2
+      total = values.sum { |counts| counts[key] }
+      values.map { |counts| counts[key] } + [total]
+    else
+      [values.first[key]]
+    end
   end
 end
+
+def pad(columns, width = nil)
+  max_size = columns.map { |column| column[-1].to_s.size }.max
+  width = width.nil? ? max_size : [width, max_size].max
+  columns.map { |column| column.map { |count| count.to_s.rjust(width) } }
+end
+
+main
