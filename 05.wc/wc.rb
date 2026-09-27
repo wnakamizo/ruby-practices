@@ -3,15 +3,16 @@
 
 require 'optparse'
 
+STDIN_NAME = ' '
+
 def main
   options, names = parse_options(ARGV)
   if names.empty?
-    names = ['']
-    contents = [$stdin.read]
+    names = [STDIN_NAME]
     width = 7 if options.values.select(&:itself).size >= 2
   end
 
-  table = build_table(names, options, contents)
+  table = build_table(names, options)
   name_column = names.size >= 2 ? [*names, 'total'] : names
   columns = pad(build_count_columns(table, options), width) + [name_column]
   rows = columns.transpose.map { |row| row.join(' ') }
@@ -30,20 +31,17 @@ def parse_options(argv)
   [options, names]
 end
 
-def build_table(names, options, contents = nil)
+def build_table(names, options)
   table = {}
-  names.each { |name| table[name.to_sym] = { lines: nil, words: nil, bytes: nil } }
-  register(names, :lines, table, contents) { |content| content.lines.size } if options[:l]
-  register(names, :words, table, contents) { |content| content.split.size } if options[:w]
-  register(names, :bytes, table, contents, &:bytesize) if options[:c]
-  table
-end
+  names.each do |name|
+    content = name == STDIN_NAME ? $stdin.read : File.read(name)
+    lines = content.lines.size if options[:l]
+    words = content.split.size if options[:w]
+    bytes = content.bytesize if options[:c]
 
-def register(names, key, table, contents = nil)
-  names.each_with_index do |name, index|
-    content = contents.nil? ? File.read(name) : contents[index]
-    table[name.to_sym][key] = yield(content)
+    table[name] = { lines: lines, words: words, bytes: bytes }
   end
+  table
 end
 
 def build_count_columns(table, options)
