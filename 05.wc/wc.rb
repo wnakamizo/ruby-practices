@@ -11,11 +11,8 @@ def main
     names = [STDIN_NAME]
     width = 7 if options.values.select(&:itself).size >= 2
   end
-
   table = build_table(names, options)
-  name_column = names.size >= 2 ? [*names, 'total'] : names
-  columns = pad(build_count_columns(table, options), width) + [name_column]
-  rows = columns.transpose.map { |row| row.join(' ') }
+  rows = build_padded_rows(table, width)
   rows.each { |row| puts row }
 end
 
@@ -41,29 +38,25 @@ def build_table(names, options)
 
     table[name] = { lines: lines, words: words, bytes: bytes }
   end
+  add_total(table, options) if table.size >= 2
   table
 end
 
-def build_count_columns(table, options)
-  keys = { l: :lines, w: :words, c: :bytes }
-  values = table.values
-  options.filter_map do |option, bool|
-    next unless bool
+def add_total(table, options)
+  total_lines = table.values.sum { |counts| counts[:lines] } if options[:l]
+  total_words = table.values.sum { |counts| counts[:words] } if options[:w]
+  total_bytes = table.values.sum { |counts| counts[:bytes] } if options[:c]
 
-    key = keys[option]
-    if values.size >= 2
-      total = values.sum { |counts| counts[key] }
-      values.map { |counts| counts[key] } + [total]
-    else
-      [values.first[key]]
-    end
-  end
+  table['total'] = { lines: total_lines, words: total_words, bytes: total_bytes }
 end
 
-def pad(columns, width = nil)
-  max_size = columns.map { |column| column[-1].to_s.size }.max
+def build_padded_rows(table, width = nil)
+  max_size = table.values[-1].values.compact.max.to_s.size
   width = width.nil? ? max_size : [width, max_size].max
-  columns.map { |column| column.map { |count| count.to_s.rjust(width) } }
+  table.map do |name, counts|
+    padded_counts = counts.values.filter_map { |count| count.nil? ? nil : count.to_s.rjust(width) }
+    padded_counts.push(name).join(' ')
+  end
 end
 
 main
