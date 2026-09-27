@@ -36,16 +36,41 @@ class FileEntry
     '7' => 'rwx'
   }.freeze
 
-  attr_reader :name
-
   def initialize(name)
     @name = name
     @stat = File.lstat(name)
   end
 
+  def show_attributes(width_nlink, width_owner, width_group, width_size)
+    padded_nlink = nlink.to_s.rjust(width_nlink)
+    padded_owner = owner.ljust(width_owner)
+    padded_group = group.ljust(width_group)
+    padded_size = size.to_s.rjust(width_size)
+
+    [mode, padded_nlink, padded_owner, padded_group, padded_size, timestamp, @name].join(' ')
+  end
+
   def block_size
     @stat.blocks
   end
+
+  def nlink
+    @stat.nlink
+  end
+
+  def owner
+    Etc.getpwuid(@stat.uid).name
+  end
+
+  def group
+    Etc.getgrgid(@stat.gid).name
+  end
+
+  def size
+    @stat.size
+  end
+
+  private
 
   def mode
     mode_octals = @stat.mode.to_s(8).rjust(6, '0')
@@ -58,28 +83,10 @@ class FileEntry
     file_type + permissions
   end
 
-  def nlink
-    @stat.nlink
-  end
-
-  def owner
-    Etc.getpwuid(@stat.uid).name
-  end
-
-  def group
-    Etc.getpwuid(@stat.gid).name
-  end
-
-  def size
-    @stat.size
-  end
-
   def timestamp
     mtime = @stat.mtime
     mtime.year == Date.today.year ? mtime.strftime('%b %d %H:%M') : mtime.strftime('%b %d  %Y')
   end
-
-  private
 
   def replace_with_special_bit(char, special_permission_flag, replacement_char)
     return char unless special_permission_flag

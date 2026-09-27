@@ -4,10 +4,8 @@
 require 'date'
 require 'etc'
 require 'optparse'
-require_relative './lib/list'
+require_relative './lib/current_directory'
 require_relative './lib/file_entry'
-require_relative './lib/column'
-require_relative './lib/column_matrix'
 
 options = { a: false, l: false, r: false }
 opt = OptionParser.new
@@ -16,9 +14,5 @@ opt.on('-l') { |v| options[:l] = v }
 opt.on('-r') { |v| options[:r] = v }
 opt.parse!(ARGV)
 
-a_opt = options[:a]
-r_opt = options[:r]
-
-files = List.new(a_opt, r_opt)
-l_opt = options[:l]
-files.ls(l_opt)
+files = CurrentDirectory.new(options[:a])
+files.ls(options[:l], options[:r])
