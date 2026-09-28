@@ -12,8 +12,7 @@ def main
     width = 7 if options.values.select(&:itself).size >= 2
   end
   table = build_table(names, options)
-  rows = build_padded_rows(table, width)
-  rows.each { |row| puts row }
+  puts build_padded_rows(table, width)
 end
 
 def parse_options(argv)
