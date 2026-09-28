@@ -11,8 +11,8 @@ def main
     names = [STDIN_NAME]
     width = 7 if options.values.select(&:itself).size >= 2
   end
-  table = build_table(names, options)
-  puts build_padded_rows(table, width)
+  entries = build_entries(names, options)
+  puts build_padded_rows(entries, width)
 end
 
 def parse_options(argv)
@@ -27,34 +27,34 @@ def parse_options(argv)
   [options, names]
 end
 
-def build_table(names, options)
-  table = {}
+def build_entries(names, options)
+  entries = []
   names.each do |name|
     content = name == STDIN_NAME ? $stdin.read : File.read(name)
     lines = content.lines.size if options[:l]
     words = content.split.size if options[:w]
     bytes = content.bytesize if options[:c]
 
-    table[name] = { lines: lines, words: words, bytes: bytes }
+    entries << { name: name, lines: lines, words: words, bytes: bytes }
   end
-  add_total(table, options) if table.size >= 2
-  table
+  add_total(entries, options) if entries.size >= 2
+  entries
 end
 
-def add_total(table, options)
-  total_lines = table.values.sum { |counts| counts[:lines] } if options[:l]
-  total_words = table.values.sum { |counts| counts[:words] } if options[:w]
-  total_bytes = table.values.sum { |counts| counts[:bytes] } if options[:c]
+def add_total(entries, options)
+  total_lines = entries.sum { |entry| entry[:lines] } if options[:l]
+  total_words = entries.sum { |entry| entry[:words] } if options[:w]
+  total_bytes = entries.sum { |entry| entry[:bytes] } if options[:c]
 
-  table['total'] = { lines: total_lines, words: total_words, bytes: total_bytes }
+  entries << { name: 'total', lines: total_lines, words: total_words, bytes: total_bytes }
 end
 
-def build_padded_rows(table, width = nil)
-  max_size = table.values[-1].values.compact.max.to_s.size
+def build_padded_rows(entries, width = nil)
+  max_size = entries[-1].values_at(:lines, :words, :bytes).compact.max.to_s.size
   width = width.nil? ? max_size : [width, max_size].max
-  table.map do |name, counts|
-    padded_counts = counts.values.filter_map { |count| count&.to_s&.rjust(width) }
-    [*padded_counts, name].join(' ')
+  entries.map do |entry|
+    padded_counts = entry.values_at(:lines, :words, :bytes).compact.map { |count| count.to_s.rjust(width) }
+    [*padded_counts, entry[:name]].join(' ')
   end
 end
 
