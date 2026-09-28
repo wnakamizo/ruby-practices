@@ -54,7 +54,7 @@ def build_padded_rows(table, width = nil)
   width = width.nil? ? max_size : [width, max_size].max
   table.map do |name, counts|
     padded_counts = counts.values.filter_map { |count| count&.to_s&.rjust(width) }
-    padded_counts.push(name).join(' ')
+    [*padded_counts, name].join(' ')
   end
 end
 
