@@ -14,5 +14,5 @@ opt.on('-l') { |v| options[:l] = v }
 opt.on('-r') { |v| options[:r] = v }
 opt.parse!(ARGV)
 
-current_directory = CurrentDirectory.new(options[:a])
-current_directory.ls(options[:l], options[:r])
+current_directory = CurrentDirectory.new(options[:a], options[:r])
+current_directory.ls(options[:l])
