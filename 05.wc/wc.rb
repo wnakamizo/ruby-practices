@@ -3,7 +3,7 @@
 
 require 'optparse'
 
-STDIN_NAME = ' '
+STDIN_NAME = ''
 
 def main
   options, names = parse_options(ARGV)
