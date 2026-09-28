@@ -25,15 +25,14 @@ def parse_options(argv)
 end
 
 def build_entries(names)
-  entries = []
   names_to_read = names.empty? ? [STDIN_NAME] : names
-  names_to_read.each do |name|
+  entries = names_to_read.map do |name|
     content = name == STDIN_NAME ? $stdin.read : File.read(name)
     lines = content.lines.size
     words = content.split.size
     bytes = content.bytesize
 
-    entries << { name: name, lines: lines, words: words, bytes: bytes }
+    { name: name, lines: lines, words: words, bytes: bytes }
   end
   add_total(entries) if entries.size >= 2
   entries
