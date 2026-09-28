@@ -4,15 +4,12 @@
 require 'optparse'
 
 STDIN_NAME = ''
+STDIN_DEFAULT_WIDTH = 7
 
 def main
   options, names = parse_options(ARGV)
-  if names.empty?
-    names = [STDIN_NAME]
-    width = 7 if options.values.select(&:itself).size >= 2
-  end
   entries = build_entries(names)
-  puts build_padded_rows(entries, options, width)
+  puts build_padded_rows(entries, options)
 end
 
 def parse_options(argv)
@@ -29,7 +26,8 @@ end
 
 def build_entries(names)
   entries = []
-  names.each do |name|
+  names_to_read = names.empty? ? [STDIN_NAME] : names
+  names_to_read.each do |name|
     content = name == STDIN_NAME ? $stdin.read : File.read(name)
     lines = content.lines.size
     words = content.split.size
@@ -49,11 +47,17 @@ def add_total(entries)
   entries << { name: 'total', lines: total_lines, words: total_words, bytes: total_bytes }
 end
 
-def build_padded_rows(entries, options, width = nil)
+def build_padded_rows(entries, options)
   keys = options.select { |_, flag| flag }.keys
-  single_count = keys.one? && entries.one?
-  max_size = single_count ? 0 : entries[-1][:bytes].to_s.size
-  width = width.nil? ? max_size : [width, max_size].max
+  max_digit_count = entries.last[:bytes].to_s.size
+  width = if keys.one? && entries.one?
+            0
+          elsif entries.first[:name] == STDIN_NAME
+            [max_digit_count, STDIN_DEFAULT_WIDTH].max
+          else
+            max_digit_count
+          end
+
   entries.map do |entry|
     padded_counts = entry.values_at(*keys).map { |count| count.to_s.rjust(width) }
     [*padded_counts, entry[:name]].join(' ')
