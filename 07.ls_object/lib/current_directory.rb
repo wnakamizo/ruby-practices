@@ -19,10 +19,10 @@ class CurrentDirectory
 
     max_rows_count = @file_names.size.ceildiv(MAX_COLUMNS)
     names = @r_opt ? @file_names.reverse : @file_names
-    padded_names = pad(names)
-    columns = padded_names.each_slice(max_rows_count).to_a
-    columns[-1][max_rows_count - 1] = nil if columns[-1].size != max_rows_count
-    columns.transpose.each { |row| puts row.join('  ') }
+    columns = names.each_slice(max_rows_count).to_a
+    padded_columns = columns.map { |column| pad(column) }
+    padded_columns[-1][max_rows_count - 1] = nil if padded_columns[-1].size != max_rows_count
+    padded_columns.transpose.each { |row| puts row.join('  ') }
   end
 
   def list_file_attributes
@@ -37,9 +37,9 @@ class CurrentDirectory
     file_entries.each { |file_entry| puts file_entry.show_attributes(width_nlink, width_owner, width_group, width_size) }
   end
 
-  def pad(names)
-    longest_name_size = @file_names.map(&:size).max
-    names.map { |name| name.ljust(longest_name_size) }
+  def pad(column)
+    longest_name_size = column.map(&:size).max
+    column.map { |name| name.ljust(longest_name_size) }
   end
 
   def build_file_entries
