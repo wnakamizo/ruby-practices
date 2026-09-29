@@ -28,35 +28,30 @@ def build_entries(names)
   names_to_read = names.empty? ? [STDIN_NAME] : names
   entries = names_to_read.map do |name|
     content = name == STDIN_NAME ? $stdin.read : File.read(name)
-    lines = content.lines.size
-    words = content.split.size
-    bytes = content.bytesize
-
-    { name: name, lines: lines, words: words, bytes: bytes }
+    {
+      name: name,
+      lines: content.lines.size,
+      words: content.split.size,
+      bytes: content.bytesize
+    }
   end
-  add_total(entries) if entries.size >= 2
+  entries << calculate_total(entries) if entries.size >= 2
   entries
 end
 
-def add_total(entries)
-  total_lines = entries.sum { |entry| entry[:lines] }
-  total_words = entries.sum { |entry| entry[:words] }
-  total_bytes = entries.sum { |entry| entry[:bytes] }
-
-  entries << { name: 'total', lines: total_lines, words: total_words, bytes: total_bytes }
+def calculate_total(entries)
+  %i[lines words bytes].each_with_object({ name: 'total' }) do |counts, total|
+    total[counts] = entries.sum { |entry| entry[counts] }
+  end
 end
 
 def build_padded_rows(entries, options)
   keys = options.select { |_, flag| flag }.keys
-  max_digit_count = entries.last[:bytes].to_s.size
-  width = if keys.one? && entries.one?
-            0
-          elsif entries.first[:name] == STDIN_NAME
-            [max_digit_count, STDIN_DEFAULT_WIDTH].max
-          else
-            max_digit_count
-          end
+  first_entry = entries.first
+  return ["#{first_entry[*keys]} #{first_entry[:name]}"] if keys.one? && entries.one?
 
+  max_digit_count = entries.last[:bytes].to_s.size
+  width = first_entry[:name] == STDIN_NAME ? [max_digit_count, STDIN_DEFAULT_WIDTH].max : max_digit_count
   entries.map do |entry|
     padded_counts = entry.values_at(*keys).map { |count| count.to_s.rjust(width) }
     [*padded_counts, entry[:name]].join(' ')
